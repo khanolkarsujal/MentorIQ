@@ -4,23 +4,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GitMentor</title>
-    <link rel="icon" type="image/png" href="images/logo.png">
-    <link rel="stylesheet" href="style.css">
+    <title>GitMentor | AI-Powered Coding Mentorship</title>
+    <link rel="icon" type="image/png" href="/frontend/images/logo.png">
+    <link rel="stylesheet" href="/frontend/style.css">
+    <script src="/frontend/script.js" defer></script>
 </head>
 
 <body>
 
     <nav class="navbar">
         <div class="logo-container">
-            <img src="images/logo.png" alt="GitMentor Logo" class="logo-icon">
+            <img src="/frontend/images/logo.png" alt="GitMentor Logo" class="logo-icon">
             <span class="brand-name">GitMentor</span>
         </div>
 
         <div class="nav-links">
             <a href="#" class="nav-item">Home</a>
-            <a href="#" class="nav-item">How It Works</a>
-
+            <a href="#features" class="nav-item">How It Works</a>
             <button class="theme-toggle">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                     stroke-linecap="round" stroke-linejoin="round">
@@ -37,15 +37,15 @@
     </nav>
 
     <main class="hero">
-        <img src="images/logo.png" alt="GitMentor Logo" class="hero-logo">
+        <img src="/frontend/images/logo.png" alt="GitMentor Logo" class="hero-logo">
         <h1 class="heading1">Find Your Perfect Mentor from Your Code</h1>
-        <p class="hero-subtitle">Our AI analyzes your GitHub repositories, understands your coding skills and project quality, then matches you with the
-        most suitable mentors based on your development level and career goals.</p>
+        <p class="hero-subtitle">Our AI analyzes your GitHub repositories, understands your coding skills, and matches
+            you with the most suitable mentors.</p>
 
         <div class="input-card">
             <div class="input-row">
                 <input type="text" placeholder="Enter Github username or profile URL" class="github-input">
-                <button class="analyze-btn">
+                <button class="analyze-btn" onclick="analyzeProfile()">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                         stroke-linecap="round" stroke-linejoin="round" class="sparkles">
                         <path
@@ -55,10 +55,12 @@
                     Analyze Profile
                 </button>
             </div>
-            <p class="try-text">start with your own profile.</p>
+            <p class="try-text">Start with your own profile or try: <b>torvalds</b></p>
         </div>
+        
+        <div id="result-display"></div>
 
-        <section class="features-grid">
+        <section id="features" class="features-grid">
             <div class="feature-card">
                 <div class="icon-box">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -68,23 +70,22 @@
                     </svg>
                 </div>
                 <h3>Deep Code Analysis</h3>
-                <p>Our AI examines your repositories, languages, frameworks, and project complexity to understand your true
-                    skill level.</p>
+                <p>Our AI examines your repositories, frameworks, and complexity to understand your true skill level.
+                </p>
             </div>
-        
             <div class="feature-card">
                 <div class="icon-box">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                         stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z">
+                        <path
+                            d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z">
                         </path>
                     </svg>
                 </div>
                 <h3>Smart Matching</h3>
-                <p>Get matched with mentors who specialize in your areas of interest and can help you overcome your specific
+                <p>Get matched with mentors who specialize in your tech stack and can help you overcome specific
                     challenges.</p>
             </div>
-        
             <div class="feature-card">
                 <div class="icon-box">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -95,8 +96,8 @@
                     </svg>
                 </div>
                 <h3>Growth Insights</h3>
-                <p>Discover your strengths, identify skill gaps, and get personalized recommendations for your development
-                    journey.</p>
+                <p>Identify skill gaps and get personalized recommendations for your professional development journey.
+                </p>
             </div>
         </section>
     </main>
