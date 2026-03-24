@@ -4,104 +4,204 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GitMentor | AI-Powered Coding Mentorship</title>
+    <title>MentorIQ — AI-Powered Technical Audit Engine</title>
+    <meta name="description" content="MentorIQ performs a deep-dive AI audit of your GitHub portfolio and matches you with your ideal mentor. Powered by Groq Llama-3.3.">
     <link rel="icon" type="image/png" href="/frontend/images/logo.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/frontend/style.css">
     <script src="/frontend/script.js" defer></script>
 </head>
 
 <body>
 
-    <nav class="navbar">
+    <!-- ===== NAVBAR ===== -->
+    <nav class="navbar" id="navbar">
         <div class="logo-container">
-            <img src="/frontend/images/logo.png" alt="GitMentor Logo" class="logo-icon">
-            <span class="brand-name">GitMentor</span>
+            <img src="/frontend/images/logo.png" alt="MentorIQ Logo" class="logo-icon">
+            <span class="brand-name">MentorIQ</span>
         </div>
-
         <div class="nav-links">
-            <a href="#" class="nav-item">Home</a>
-            <a href="#features" class="nav-item">How It Works</a>
-            <button class="theme-toggle">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                </svg>
-            </button>
-        </div>
-
-        <div class="menu-icon">
-            <div class="bar"></div>
-            <div class="bar"></div>
-            <div class="bar"></div>
+            <a href="#how-it-works" class="nav-item">How It Works</a>
+            <a href="#pillars" class="nav-item">The Audit</a>
+            <a href="#features" class="nav-item">Features</a>
+            <a href="#analyze" class="nav-cta" id="nav-cta-btn">Audit My Code →</a>
         </div>
     </nav>
 
-    <main class="hero">
-        <img src="/frontend/images/logo.png" alt="GitMentor Logo" class="hero-logo">
-        <h1 class="heading1">Find Your Perfect Mentor from Your Code</h1>
-        <p class="hero-subtitle">Our AI analyzes your GitHub repositories, understands your coding skills, and matches
-            you with the most suitable mentors.</p>
+    <!-- ===== HERO ===== -->
+    <section class="hero" id="home">
+        <div class="hero-bg-grid"></div>
+        <div class="hero-glow-orb orb-1"></div>
+        <div class="hero-glow-orb orb-2"></div>
 
-        <div class="input-card">
-            <div class="input-row">
-                <input type="text" placeholder="Enter Github username or profile URL" class="github-input">
-                <button class="analyze-btn" onclick="analyzeProfile()">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round" class="sparkles">
-                        <path
-                            d="M12 3l1.912 5.813a2 2 0 001.275 1.275L21 12l-5.813 1.912a2 2 0 00-1.275 1.275L12 21l-1.912-5.813a2 2 0 00-1.275-1.275L3 12l5.813-1.912a2 2 0 001.275-1.275L12 3z">
-                        </path>
-                    </svg>
-                    Analyze Profile
-                </button>
+        <div class="hero-content">
+            <div class="hero-eyebrow">
+                <span class="eyebrow-dot"></span>
+                Built for Ignite Hack 2.0 · Powered by Groq Llama-3.3
             </div>
-            <p class="try-text">Start with your own profile or try: <b>torvalds</b></p>
+            <h1 class="hero-title">
+                Your Code is Your<br><span class="gradient-text">Real Resume.</span>
+            </h1>
+            <p class="hero-sub">
+                MentorIQ performs a <strong>zero-config Staff Engineer audit</strong> of your actual GitHub
+                repositories — grading you on the same 5 pillars a hiring manager checks before every interview.
+            </p>
+            <div class="hero-actions">
+                <a href="#analyze" class="btn-primary" id="hero-cta">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 3l1.912 5.813a2 2 0 001.275 1.275L21 12l-5.813 1.912a2 2 0 00-1.275 1.275L12 21l-1.912-5.813a2 2 0 00-1.275-1.275L3 12l5.813-1.912a2 2 0 001.275-1.275L12 3z"></path></svg>
+                    Audit My Portfolio Free
+                </a>
+                <a href="#how-it-works" class="btn-ghost">See How It Works</a>
+            </div>
+            <div class="hero-stats">
+                <div class="stat-item"><strong>5</strong><span>Pillar Rubric</span></div>
+                <div class="stat-divider"></div>
+                <div class="stat-item"><strong>&lt;3s</strong><span>Audit Time</span></div>
+                <div class="stat-divider"></div>
+                <div class="stat-item"><strong>1–10</strong><span>Maturity Score</span></div>
+                <div class="stat-divider"></div>
+                <div class="stat-item"><strong>AI</strong><span>Staff Engineer</span></div>
+            </div>
         </div>
-        
-        <div id="result-display"></div>
+    </section>
 
-        <section id="features" class="features-grid">
-            <div class="feature-card">
-                <div class="icon-box">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="16 18 22 12 16 6"></polyline>
-                        <polyline points="8 6 2 12 8 18"></polyline>
-                    </svg>
+    <!-- ===== HOW IT WORKS ===== -->
+    <section class="section" id="how-it-works">
+        <div class="section-container">
+            <p class="section-eyebrow">The Process</p>
+            <h2 class="section-title">Three Steps. Zero Guesswork.</h2>
+            <div class="steps-grid">
+                <div class="step-card">
+                    <div class="step-number">01</div>
+                    <h3>GitHub Ingestion</h3>
+                    <p>Provide your GitHub username. We automatically pull your latest repos, language distribution, stars, and README content — no forms to fill.</p>
                 </div>
-                <h3>Deep Code Analysis</h3>
-                <p>Our AI examines your repositories, frameworks, and complexity to understand your true skill level.
-                </p>
-            </div>
-            <div class="feature-card">
-                <div class="icon-box">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <path
-                            d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z">
-                        </path>
-                    </svg>
+                <div class="step-card">
+                    <div class="step-number">02</div>
+                    <h3>AI Staff Audit</h3>
+                    <p>Our LLM acts as a Staff Engineer reviewing a pull request. It grades your work across 5 technical maturity pillars unique to real engineering teams.</p>
                 </div>
-                <h3>Smart Matching</h3>
-                <p>Get matched with mentors who specialize in your tech stack and can help you overcome specific
-                    challenges.</p>
-            </div>
-            <div class="feature-card">
-                <div class="icon-box">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <path
-                            d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22">
-                        </path>
-                    </svg>
+                <div class="step-card">
+                    <div class="step-number">03</div>
+                    <h3>Mentor Match</h3>
+                    <p>You receive a Maturity Score, targeted skill-gap diagnosis, and a mentor archetype matched exactly to the gap between where you are and where you need to be.</p>
                 </div>
-                <h3>Growth Insights</h3>
-                <p>Identify skill gaps and get personalized recommendations for your professional development journey.
-                </p>
             </div>
-        </section>
-    </main>
+        </div>
+    </section>
+
+    <!-- ===== 5 PILLARS ===== -->
+    <section class="section section-dark" id="pillars">
+        <div class="section-container">
+            <p class="section-eyebrow">The Rubric</p>
+            <h2 class="section-title">The 5 Pillars of Technical Maturity</h2>
+            <p class="section-desc">The same signals a Staff Engineer checks during a real hiring assessment.</p>
+            <div class="pillars-grid">
+                <div class="pillar-card">
+                    <div class="pillar-icon">🐳</div>
+                    <h4>DevOps & Prod-Readiness</h4>
+                    <p>Docker, CI/CD pipelines, and <code>.env</code> management. Because "it works on my machine" is not enough.</p>
+                    <span class="pillar-signal senior">Senior Signal</span>
+                </div>
+                <div class="pillar-card">
+                    <div class="pillar-icon">📖</div>
+                    <h4>Documentation Quality</h4>
+                    <p>README depth, setup guides, API docs, and architecture diagrams. The difference between a lone coder and a team player.</p>
+                    <span class="pillar-signal mid">Mid Signal</span>
+                </div>
+                <div class="pillar-card">
+                    <div class="pillar-icon">🏗</div>
+                    <h4>Modular Architecture</h4>
+                    <p>Separation of concerns, clean folder structure, and reusable logic. Juniors write monoliths; Seniors build systems.</p>
+                    <span class="pillar-signal senior">Senior Signal</span>
+                </div>
+                <div class="pillar-card">
+                    <div class="pillar-icon">🔒</div>
+                    <h4>Security & Best Practices</h4>
+                    <p>Environment variables, JWT auth, and proper error handling. Security is not a feature — it is a baseline.</p>
+                    <span class="pillar-signal senior">Senior Signal</span>
+                </div>
+                <div class="pillar-card">
+                    <div class="pillar-icon">🔗</div>
+                    <h4>Integration Complexity</h4>
+                    <p>Real APIs, databases, and external services. Integrating disparate systems shows a developer who solves real business problems.</p>
+                    <span class="pillar-signal mid">Mid Signal</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== ANALYZE INPUT ===== -->
+    <section class="section" id="analyze">
+        <div class="section-container analyze-container">
+            <p class="section-eyebrow">Run Your Audit</p>
+            <h2 class="section-title">Enter Your GitHub Username</h2>
+            <p class="section-desc">Takes under 3 seconds. No signup. No credit card.</p>
+
+            <div class="input-card" id="input-card">
+                <div class="input-row">
+                    <span class="input-prefix">github.com/</span>
+                    <input type="text" id="github-input" class="github-input" placeholder="your-username" autocomplete="off" spellcheck="false">
+                    <button class="analyze-btn" id="analyze-btn" onclick="analyzeProfile()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="sparkles"><path d="M12 3l1.912 5.813a2 2 0 001.275 1.275L21 12l-5.813 1.912a2 2 0 00-1.275 1.275L12 21l-1.912-5.813a2 2 0 00-1.275-1.275L3 12l5.813-1.912a2 2 0 001.275-1.275L12 3z"></path></svg>
+                        Analyze Profile
+                    </button>
+                </div>
+                <p class="try-text">Try: <button class="try-chip" onclick="fillAndAnalyze('torvalds')">torvalds</button> <button class="try-chip" onclick="fillAndAnalyze('khanolkarsujal')">khanolkarsujal</button></p>
+            </div>
+
+            <!-- Result Display -->
+            <div id="result-display"></div>
+        </div>
+    </section>
+
+    <!-- ===== FEATURES BENTO ===== -->
+    <section class="section section-dark" id="features">
+        <div class="section-container">
+            <p class="section-eyebrow">Why MentorIQ</p>
+            <h2 class="section-title">Built for the Real World</h2>
+            <div class="features-bento">
+                <div class="bento-card bento-large">
+                    <div class="bento-icon">⚡</div>
+                    <h3>Zero-Config Portfolio Scan</h3>
+                    <p>We don't ask you to fill out a 20-page profile. We perform a technical audit of your actual work — the only source of truth that matters.</p>
+                </div>
+                <div class="bento-card">
+                    <div class="bento-icon">🧠</div>
+                    <h3>AI Code Fingerprinting</h3>
+                    <p>Our LLM identifies your proficiency level and coding style — "Documentation-heavy," "Performance-focused," or "Modular."</p>
+                </div>
+                <div class="bento-card">
+                    <div class="bento-icon">🎯</div>
+                    <h3>Targeted Gap Diagnosis</h3>
+                    <p>We match you to a mentor who specifically addresses the exact technical gaps found in your audit — not just any mentor.</p>
+                </div>
+                <div class="bento-card">
+                    <div class="bento-icon">🤝</div>
+                    <h3>Mentozy-Ready Matching</h3>
+                    <p>Designed to integrate with human-led learning platforms like Mentozy, bridging the gap between self-learning and career-ready skills.</p>
+                </div>
+                <div class="bento-card bento-large">
+                    <div class="bento-icon">📊</div>
+                    <h3>Maturity Score That Means Something</h3>
+                    <p>A 1–10 score graded across 5 real engineering pillars — not a vague "beginner/advanced" label but a specific, actionable diagnosis with named strengths and gaps.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="logo-container">
+                <img src="/frontend/images/logo.png" alt="MentorIQ" class="logo-icon">
+                <span class="brand-name">MentorIQ</span>
+            </div>
+            <p class="footer-note">Built for Ignite Hack 2.0 · Powered by FastAPI + Groq · Aligned with Mentozy's human-led learning vision</p>
+        </div>
+    </footer>
 
 </body>
-
 </html>
