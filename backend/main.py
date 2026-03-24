@@ -98,32 +98,40 @@ async def analyze_github(username: str = Query(..., min_length=1)):
         total_repos = len(repos)
         stars = sum(r.get('stargazers_count', 0) for r in repos)
 
-        # C. Staff Engineer AI Audit
+        # C. Staff Engineer AI Audit — 5-Pillar Rubric
         if client:
             prompt = f"""
-You are a Staff Engineer and Hiring Manager performing a technical portfolio audit for the user: '{username}'.
+You are a Staff Engineer performing a hiring assessment for '{username}'.
 
-CONTEXT:
-- Latest Repository: {latest_repo}
-- Project Topics/Tags: {', '.join(topics) if topics else 'None listed'}
-- Total Public Repos: {total_repos}
-- Total Stars Earned: {stars}
-- Detected Languages: {', '.join(top_languages) if top_languages else 'Unknown'}
-- README Content:
+Audit their portfolio using their top project '{latest_repo}' and README below.
+
+README:
 {readme[:2000]}
 
-YOUR TASK:
-Perform a deep-dive technical audit. Do not be generic. Analyze their documentation quality, use of modern frameworks, and architectural patterns visible in the README and repo metadata.
+ADDITIONAL SIGNALS:
+- Topics/Tags: {', '.join(topics) if topics else 'None'}
+- Detected Languages: {', '.join(top_languages) if top_languages else 'Unknown'}
+- Total Public Repos: {total_repos}
+- Total Stars: {stars}
 
-RETURN ONLY VALID JSON. Structure:
+EVALUATE USING THIS 5-PILLAR TECHNICAL MATURITY RUBRIC:
+1. DevOps & Prod-Readiness: Does the repo mention Docker, CI/CD (GitHub Actions), or .env / .env.example files? A developer who uses these understands "it works on my machine" is not enough. This is a Senior signal.
+2. Documentation Quality: Does the README have setup instructions, architecture diagrams, API docs, or screenshots/GIFs? Documentation is the difference between a lone coder and a team player.
+3. Modular Architecture: Does the project mention microservices, API structure, or separation of concerns? Juniors write monolithic spaghetti; Mid/Seniors structure apps into logical, reusable modules.
+4. Security & Best Practices: Does it mention environment variables (no hardcoded keys), JWT auth, or robust error handling? Security-awareness is a high-maturity signal.
+5. Integration Complexity: Are they building a simple ToDo list, or integrating with real APIs, databases, and external services (e.g., Stripe, OpenAI, PostgreSQL)? Complex integrations show a developer who solves real business problems.
+
+Based on this rubric, determine their overall maturity.
+
+RETURN ONLY VALID JSON:
 {{
     "skill_level": "Beginner or Intermediate or Advanced",
-    "maturity_score": <integer 1-10 evaluating code structure, documentation, and stack maturity>,
-    "top_languages": [<list of 3-5 detected tech stack items as strings>],
-    "strengths": [<list of exactly 2 specific core technical strengths as strings>],
-    "skill_gaps": [<list of exactly 2 specific technical areas for improvement as strings>],
-    "mentor_match": "<The job title of the ideal senior mentor they need>",
-    "insights": "<A 2-sentence professional technical audit of their code quality and growth path.>"
+    "maturity_score": <integer 1-10>,
+    "top_languages": [<list of 3-5 detected tech stack items>],
+    "strengths": [<exactly 2 of the 5 pillars they clearly excel at, phrased as a specific observation>],
+    "skill_gaps": [<exactly 2 of the 5 pillars they are missing or weak in, phrased as actionable advice>],
+    "mentor_match": "<ideal senior mentor job title (e.g., Senior Systems Architect)>",
+    "insights": "<2-sentence professional audit focusing on code structure and maturity growth path>"
 }}
 """
             completion = client.chat.completions.create(
