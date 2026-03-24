@@ -1,0 +1,270 @@
+:root {
+    --bg-deep: #091413;
+    --bg-card: #0d1b1a;
+    --brand-primary: #285A48;
+    --brand-accent: #408A71;
+    --brand-glow: #B0E4CC;
+    --text-dim: #94a3b8;
+    --text-bright: #f8fafc;
+}
+
+/* --- Basic Reset --- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+body {
+    background-color: var(--bg-deep);
+    color: var(--text-bright);
+    min-height: 100vh;
+    line-height: 1.5;
+}
+
+/* --- Navigation Bar --- */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 24px;
+    background-color: rgba(9, 20, 19, 0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--brand-primary);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.logo-icon {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+}
+
+.brand-name {
+    color: var(--brand-glow);
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.nav-item {
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+.nav-item:hover {
+    color: var(--brand-glow);
+}
+
+.theme-toggle {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: transform 0.2s, color 0.2s;
+}
+
+.theme-toggle:hover {
+    color: var(--brand-glow);
+    transform: rotate(15deg);
+}
+
+/* --- Hero Section --- */
+.hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 100px 20px;
+}
+
+.hero-logo {
+    width: 70px;
+    margin-bottom: 24px;
+    filter: drop-shadow(0 0 15px var(--brand-primary));
+}
+
+.heading1 {
+    font-size: 4rem;
+    font-weight: 800;
+    margin-bottom: 12px;
+    letter-spacing: -0.04em;
+    background: linear-gradient(to bottom, #fff, var(--brand-glow));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.hero-subtitle {
+    font-size: 1.2rem;
+    color: var(--text-dim);
+    max-width: 500px;
+    margin-bottom: 48px;
+}
+
+/* --- Input Card Section --- */
+.input-card {
+    background: var(--bg-card);
+    border: 1px solid var(--brand-primary);
+    border-radius: 20px;
+    padding: 32px;
+    width: 100%;
+    max-width: 600px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+.input-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #050a0a;
+    padding: 6px 6px 6px 16px;
+    border-radius: 12px;
+    border: 1px solid var(--brand-primary);
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.input-row:focus-within {
+    border-color: var(--brand-accent);
+    box-shadow: 0 0 0 2px rgba(64, 138, 113, 0.2);
+}
+
+.github-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--text-bright);
+    font-size: 1rem;
+    outline: none;
+}
+
+.analyze-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: var(--brand-accent);
+    color: var(--bg-deep);
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.analyze-btn:hover {
+    background-color: var(--brand-glow);
+    transform: translateY(-1px);
+}
+
+.try-text {
+    font-size: 0.8rem;
+    color: var(--brand-primary);
+    margin-top: 20px;
+}
+
+/* --- Responsive Layout --- */
+@media (max-width: 768px) {
+    .nav-links {
+        display: none;
+    }
+
+    .heading1 {
+        font-size: 2.5rem;
+    }
+
+    .input-row {
+        flex-direction: column;
+        padding: 10px;
+    }
+
+    .analyze-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Container for the Bento Grid */
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+    padding: 60px 20px;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+/* Individual Card Styling */
+.feature-card {
+    background: var(--bg-white);
+    border: 1px solid #eee;
+    padding: 32px;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    text-align: left;
+}
+
+/* Hover effect: Subtle lift and mint border */
+.feature-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--color-mint);
+    box-shadow: 0 10px 30px rgba(165, 200, 158, 0.1);
+}
+
+/* Icon Box Background */
+.icon-box {
+    width: 48px;
+    height: 48px;
+    background-color: var(--color-cream);
+    /* Subtle yellow glow */
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-moss);
+}
+
+.feature-card h3 {
+    font-size: 1.25rem;
+    color: var(--text-dark);
+    font-weight: 700;
+}
+
+.feature-card p {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+}
+
+/* Responsive fix for small screens */
+@media (max-width: 600px) {
+    .features-grid {
+        grid-template-columns: 1fr;
+    }
+}
