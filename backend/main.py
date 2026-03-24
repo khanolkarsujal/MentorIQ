@@ -79,7 +79,7 @@ async def analyze_github(username: str = Query(..., min_length=1)):
 
     try:
         # A. Fetch GitHub repos
-        headers = {'User-Agent': 'MentorIQ-App'}
+        headers = {'User-Agent': 'GitMentor-App'}
         repos_url = f"https://api.github.com/users/{username}/repos?sort=updated&per_page=10"
         res = requests.get(repos_url, headers=headers, timeout=5)
 

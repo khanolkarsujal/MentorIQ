@@ -1,6 +1,6 @@
-# MentorIQ: The AI-Driven Technical Audit Engine
+# GitMentor: The AI-Driven Technical Audit Engine
 
-> **Ditch the guesswork. Audit your code. Find your perfect mentor.**
+> **Ditch the Resume. Audit Your Code. Let Your Code Find Your Mentor.**
 
 ![Dashboard Screenshot](frontend/images/screenshot.png)
 
@@ -8,22 +8,22 @@
 
 ## 🚀 The Vision
 
-MentorIQ is a diagnostic engine that eliminates the **"Tutorial Hell"** problem. Instead of relying on inflated, self-reported resumes, MentorIQ performs a deep-dive AI technical audit of a student's actual GitHub repositories. We provide actionable, data-driven insights that bridge the gap between *"coding hobbyist"* and *"production-ready developer."*
+GitMentor is a diagnostic engine that eliminates the **"Tutorial Hell"** problem. Instead of relying on inflated, self-reported resumes, GitMentor performs a deep-dive AI technical audit of a student's actual GitHub repositories. We provide actionable, data-driven insights that bridge the gap between *"coding hobbyist"* and *"production-ready developer."*
 
 We are purpose-built to align with the **human-led learning ecosystem of Mentozy** — ensuring every student is matched to the right mentor *before* they have their first conversation.
 
 ---
 
-## 💡 Why MentorIQ?
+## 💡 Why GitMentor?
 
 Mentorship platforms are broken because they rely on **resumes** — static, inflatable, and misleading.
 
-| Traditional Platform | MentorIQ |
+| Traditional Platform | GitMentor |
 |---|---|
 | Self-reported skill level | AI-audited from actual code |
 | Generic mentor browsing | Targeted gap-to-mentor matching |
 | Manual profile setup | Zero-config GitHub scan |
-| Subjective assessment | 5-Pillar objective rubric |
+| Subjective assessment | 5-Pillar objective diagnostic |
 
 ---
 
@@ -87,8 +87,8 @@ See [`docs/architecture.md`](docs/architecture.md) for the full technical breakd
 
 ### With Docker (Recommended)
 ```bash
-git clone https://github.com/khanolkarsujal/MentorIQ
-cd MentorIQ
+git clone https://github.com/khanolkarsujal/GitMentor
+cd GitMentor
 cp .env.example .env   # Add your GROQ_API_KEY
 docker-compose up --build
 ```
@@ -126,9 +126,9 @@ pytest tests/ -v
 
 ## 🤝 Mentozy Alignment
 
-MentorIQ is designed as a **pre-session intelligence layer** for human-led learning platforms like Mentozy:
+GitMentor is designed as a **pre-session intelligence layer** for human-led learning platforms like Mentozy:
 
-- **Before a session**: MentorIQ audits the student's portfolio and surfaces their exact skill gaps
+- **Before a session**: GitMentor audits the student's portfolio and surfaces their exact skill gaps
 - **Mentor selection**: The audit output directly maps to a mentor archetype (e.g., "Senior Systems Architect")
 - **Post-match**: The mentor receives the Audit Report — reducing onboarding time by an estimated **40%**
 
@@ -139,9 +139,9 @@ MentorIQ is designed as a **pre-session intelligence layer** for human-led learn
 ## 📁 Project Structure
 
 ```
-MentorIQ/
+GitMentor/
 ├── backend/
-│   └── main.py              # FastAPI + GitHub API + Groq LLM + 5-Pillar rubric
+│   └── main.py              # FastAPI + GitHub API + Groq LLM + 5-Pillar diagnostic
 ├── frontend/
 │   ├── index.html           # Multi-section premium UI
 │   ├── style.css            # Full design system (glassmorphism + animations)

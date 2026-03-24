@@ -124,3 +124,58 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+// ==========================================
+// GOOGLE SIGN-IN IMPLEMENTATION
+// ==========================================
+// 1. You MUST replace this with a real Client ID from Google Cloud Console
+const GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com";
+let tokenClient;
+
+window.addEventListener('load', () => {
+    // Initialize Google Identity Services
+    if (typeof google !== "undefined" && google.accounts) {
+        tokenClient = google.accounts.oauth2.initTokenClient({
+            client_id: GOOGLE_CLIENT_ID,
+            scope: "https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email",
+            callback: (tokenResponse) => {
+                if (tokenResponse && tokenResponse.access_token) {
+                    // Fetch real user info from Google
+                    fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+                        headers: { Authorization: `Bearer ${tokenResponse.access_token}` }
+                    })
+                    .then(res => res.json())
+                    .then(user => {
+                        updateSignInUI(user.given_name, user.picture);
+                    })
+                    .catch(err => console.error("Error fetching user info:", err));
+                }
+            }
+        });
+    }
+});
+
+function handleGoogleSignIn() {
+    if (!tokenClient) {
+        alert("Google Sign-In failed to load. Check your internet connection or ad-blocker.");
+        return;
+    }
+
+    if (GOOGLE_CLIENT_ID === "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com") {
+        alert("Action Required: Real Google OAuth is hooked up, but you need to paste your Client ID into frontend/script.js!\n\n(Clicking 'OK' will show the visual mock for the hackathon demo.)");
+        updateSignInUI("Guest", "https://ui-avatars.com/api/?name=Guest+User&background=408A71&color=fff");
+        return;
+    }
+
+    // Opens the actual Google popup flow
+    tokenClient.requestAccessToken();
+}
+
+function updateSignInUI(firstName, pictureUrl) {
+    const btn = document.getElementById('nav-cta-btn');
+    btn.innerHTML = `<img src="${pictureUrl}" style="width:20px; height:20px; border-radius:50%; vertical-align:-5px; margin-right:6px; object-fit:cover;">${firstName}`;
+    btn.style.background = "transparent";
+    btn.style.color = "var(--bright)";
+    btn.style.borderColor = "var(--primary)";
+    btn.onclick = null; // Prevent re-clicking
+}
