@@ -12,6 +12,7 @@ from fastapi.responses import FileResponse # type: ignore
 import mentor_db
 from typing import List, Dict, Any, cast
 import itertools # type: ignore
+from bs4 import BeautifulSoup # type: ignore
 
 # 1. SETUP
 load_dotenv()
@@ -42,15 +43,40 @@ client = OpenAI(api_key=api_key, base_url="https://api.groq.com/openai/v1") if a
 
 # Helper: Fetch README
 def fetch_readme(username, repo_name):
+    # Try public raw URL first
+    headers = {'User-Agent': 'Mozilla/5.0'}
     for branch in ['main', 'master']:
         url = f"https://raw.githubusercontent.com/{username}/{repo_name}/{branch}/README.md"
         try:
-            res = requests.get(url, timeout=3)
+            res = requests.get(url, headers=headers, timeout=3)
             if res.status_code == 200:
                 return res.text[:2000]
         except:
             continue
     return "No README content found."
+
+def scrape_github_fallback(username: str) -> List[Dict[str, Any]]:
+    """Fallback scraper when API is rate-limited."""
+    url = f"https://github.com/{username}?tab=repositories"
+    headers = {'User-Agent': 'Mozilla/5.0'}
+    try:
+        res = requests.get(url, headers=headers, timeout=5)
+        if res.status_code != 200: return []
+        soup = BeautifulSoup(res.text, 'html.parser')
+        repos: List[Dict[str, Any]] = []
+        for li in soup.find_all('li', itemprop='owns'):
+            name_tag = li.find('a', itemprop='name codeRepository')
+            if not name_tag: continue
+            repos.append({
+                'name': name_tag.text.strip(),
+                'description': li.find('p', itemprop='description').text.strip() if li.find('p', itemprop='description') else '',
+                'stargazers_count': 0, 
+                'language': li.find('span', itemprop='programmingLanguage').text.strip() if li.find('span', itemprop='programmingLanguage') else 'Unknown',
+                'topics': [] 
+            })
+        return repos
+    except:
+        return []
 
 # Helper: Fetch top languages across repos
 def fetch_languages(username, repos, headers):
@@ -146,32 +172,33 @@ async def analyze_github(username: str = Query(..., min_length=1)):
         repos_url = f"https://api.github.com/users/{username}/repos?sort=updated&per_page=10"
         res = requests.get(repos_url, headers=headers, timeout=5)
 
+        # FINAL TOUCH: API Fallback for Rate Limits
         if res.status_code == 403 or res.status_code == 429:
-            return {"status": "error", "detail": "GitHub API Rate Limit exceeded. Please configure GITHUB_TOKEN in backend/.env"}
-            
-        if res.status_code != 200:
+            print(f"DEBUG: Rate limit hit. Using fallback scraper for {username}.")
+            repos: List[Dict[str, Any]] = scrape_github_fallback(username)
+        elif res.status_code != 200:
             print(f"DEBUG: GitHub API failed for {username} — status {res.status_code}")
             return {"status": "error", "detail": f"GitHub user '{username}' not found or API error."}
-            
-        res_json = res.json()
-        if type(res_json) is dict and "message" in res_json:
-            repos = []
         else:
-            repos = res_json
+            res_json = res.json()
+            if type(res_json) is dict and "message" in res_json:
+                repos = []
+            else:
+                repos = cast(List[Dict[str, Any]], res_json)
 
         if not repos:
             return {"status": "error", "detail": f"User '{username}' has no public repositories to analyze."}
 
         # B. Gather rich context
-        latest_repo = repos[0]['name']
+        repos_list = cast(List[Dict[str, Any]], repos)
+        latest_repo = str(repos_list[0].get('name', ''))
         readme = fetch_readme(username, latest_repo)
-        top_languages = fetch_languages(username, repos, headers)
-        topics = repos[0].get('topics', [])
-        total_repos = len(repos)
-        stars = sum(r.get('stargazers_count', 0) for r in repos)
+        top_languages = cast(List[str], fetch_languages(username, repos_list, headers))
+        topics = cast(List[str], repos_list[0].get('topics', []))
+        total_repos = len(repos_list)
+        stars = sum(int(r.get('stargazers_count', 0)) for r in repos_list)
 
         # Fix indexing into list[Unknown] and slice warning
-        repos_list = cast(List[Dict[str, Any]], repos)
         repo_summaries_all = [f"{r.get('name', 'unknown')} (Stars: {r.get('stargazers_count', 0)}): {r.get('description','No description')}" for r in repos_list]
         repo_summaries = list(itertools.islice(repo_summaries_all, 5)) # Limit to top 5 for summary
 
