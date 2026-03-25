@@ -101,7 +101,7 @@ async function analyzeProfile() {
                         <p>${data.activity_overview || "Analyzing recent contribution frequency, code pushes, and issue activity to determine engagement level..."}</p>
                     </div>
 
-                    <div class="two-col">
+                    <div class="three-col">
                         <div class="strength-box">
                             <p class="section-label">Core Strengths</p>
                             <ul class="audit-list">${strengthsHTML}</ul>
@@ -110,27 +110,44 @@ async function analyzeProfile() {
                             <p class="section-label">Skill Gaps</p>
                             <ul class="audit-list">${gapsHTML}</ul>
                         </div>
-                    </div>
-
-                    ${data.matched_mentor ? `
-                    <div class="match-box fade-in" style="margin-top: 24px; border-color: rgba(64,138,113,0.3); background: rgba(64,138,113,0.05);">
-                        <p class="section-label" style="color: var(--primary);">🎯 Your Perfect Mentor Match</p>
-                        <div style="display:flex; align-items:center; gap:20px; margin-top:16px;">
-                            <img src="${data.matched_mentor.avatar_url}" style="width:70px; height:70px; border-radius:50%; border: 2px solid var(--primary);">
-                            <div>
-                                <h4 style="margin:0 0 4px 0; font-size:1.2rem; color:var(--bright);">${data.matched_mentor.name}</h4>
-                                <p style="margin:0 0 10px 0; color:var(--text); font-size:0.95rem;">${data.matched_mentor.title} @ <strong style="color:var(--bright);">${data.matched_mentor.company}</strong></p>
-                                <div style="display:flex; gap:6px; flex-wrap:wrap;">
-                                    ${data.matched_mentor.tech_stack.map(t => `<span class="lang-pill" style="font-size:0.75rem; padding:2px 8px;">${t}</span>`).join('')}
+                        ${data.matched_mentor ? `
+                        <div class="match-box" style="text-align: left; padding: 18px; display: flex; flex-direction: column;">
+                            <p class="section-label">Mentor Match</p>
+                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                                <img src="${data.matched_mentor.avatar_url}" style="width:40px;height:40px;border-radius:50%;border:1px solid var(--accent);" alt="Mentor">
+                                <div>
+                                    <div style="font-weight:700; font-size: 0.9rem; line-height:1.2;">${data.matched_mentor.name}</div>
+                                    <div style="font-size:0.75rem; color:var(--muted);">${data.matched_mentor.company}</div>
                                 </div>
                             </div>
+                            <div class="mentor-title" style="font-size: 0.9rem; margin-top: 0; color: var(--glow);">${data.matched_mentor.title}</div>
+                            <div style="display:flex; flex-wrap:wrap; gap:4px; margin-top:8px;">
+                                ${(data.matched_mentor.tech_stack || []).slice(0, 3).map(tech => `<span class="lang-pill" style="font-size:0.65rem; padding: 2px 8px;">${tech}</span>`).join('')}
+                            </div>
                         </div>
-                    </div>` : `
-                    <div class="match-box">
-                        <p class="section-label">Recommended Mentor</p>
-                        <p class="mentor-title">🎯 ${data.mentor_match}</p>
-                    </div>`}
-                </div>`;
+                        ` : `
+                        <div class="match-box" style="text-align: left; padding: 18px;">
+                            <p class="section-label">Mentor Match</p>
+                            <p style="font-size: 0.85rem; color: var(--muted);">Recommended: ${data.mentor_match}</p>
+                        </div>
+                        `}
+                    </div>
+
+                    <div style="margin-top: 16px;">
+                        <p class="section-label">Top Repositories</p>
+                        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                            ${reposHTML}
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 16px;">
+                        <p class="section-label">Technologies Used</p>
+                        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                            ${toolsHTML}
+                        </div>
+                    </div>
+                </div>
+            `;
 
         // Animate bar after render
         requestAnimationFrame(() => {
@@ -142,16 +159,16 @@ async function analyzeProfile() {
 
         document.getElementById('result-display').scrollIntoView({ behavior: 'smooth', block: 'start' });
     } catch (err) {
-    console.error("Fetch error:", err);
-    alert("Could not reach the server. Ensure the backend is running.");
-} finally {
-    button.disabled = false;
-    button.innerHTML = `
+        console.error("Fetch error:", err);
+        alert("Could not reach the server. Ensure the backend is running.");
+    } finally {
+        button.disabled = false;
+        button.innerHTML = `
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="sparkles">
                 <path d="M12 3l1.912 5.813a2 2 0 001.275 1.275L21 12l-5.813 1.912a2 2 0 00-1.275 1.275L12 21l-1.912-5.813a2 2 0 00-1.275-1.275L3 12l5.813-1.912a2 2 0 001.275-1.275L12 3z"></path>
             </svg>
             Analyze Profile`;
-}
+    }
 }
 
 // Enter key support
