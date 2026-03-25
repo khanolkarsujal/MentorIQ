@@ -8,10 +8,14 @@ from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
+import mentor_db
 
 # 1. SETUP
 load_dotenv()
 app = FastAPI()
+
+# Init Database
+mentor_db.init_db()
 
 # CORS for Frontend
 app.add_middleware(
@@ -59,6 +63,53 @@ def fetch_languages(username, repos, headers):
             continue
     return sorted(lang_count, key=lang_count.get, reverse=True)[:6]
 
+# Helper: Deep Repo Context
+def fetch_deep_repo_context(username, repo_name, headers):
+    context = {"file_structure": [], "recent_commits": [], "recent_prs": [], "recent_issues": []}
+    
+    # 1. File Structure (Tree)
+    try:
+        url = f"https://api.github.com/repos/{username}/{repo_name}/git/trees/main?recursive=1"
+        res = requests.get(url, headers=headers, timeout=3)
+        if res.status_code == 404:
+            url = f"https://api.github.com/repos/{username}/{repo_name}/git/trees/master?recursive=1"
+            res = requests.get(url, headers=headers, timeout=3)
+        if res.status_code == 200:
+            tree = res.json().get('tree', [])
+            paths = [item['path'] for item in tree if item['type'] == 'tree' or item['path'].endswith(('.py', '.js', '.ts', '.java', '.go', '.json', 'Dockerfile', '.yml', '.md', '.html', '.css')) or 'docker' in item['path'].lower() or '.vscode' in item['path']]
+            context['file_structure'] = paths[:100]
+    except:
+        pass
+
+    # 2. Commits
+    try:
+        url = f"https://api.github.com/repos/{username}/{repo_name}/commits?per_page=5"
+        res = requests.get(url, headers=headers, timeout=3)
+        if res.status_code == 200:
+            context['recent_commits'] = [c['commit']['message'] for c in res.json()]
+    except:
+        pass
+
+    # 3. Pull Requests
+    try:
+        url = f"https://api.github.com/repos/{username}/{repo_name}/pulls?state=all&per_page=3"
+        res = requests.get(url, headers=headers, timeout=3)
+        if res.status_code == 200:
+            context['recent_prs'] = [pr['title'] for pr in res.json()]
+    except:
+        pass
+
+    # 4. Issues
+    try:
+        url = f"https://api.github.com/repos/{username}/{repo_name}/issues?state=all&per_page=3"
+        res = requests.get(url, headers=headers, timeout=3)
+        if res.status_code == 200:
+            context['recent_issues'] = [issue['title'] for issue in res.json() if 'pull_request' not in issue]
+    except:
+        pass
+
+    return context
+
 # 2. ROUTES
 @app.get("/")
 async def serve_home():
@@ -68,9 +119,14 @@ async def serve_home():
 async def analyze_github(username: str = Query(..., min_length=1)):
     # RICH MOCK FALLBACK DATA
     mock_data = {
-        "skill_level": "Intermediate",
-        "maturity_score": 6,
-        "top_languages": ["Python", "JavaScript", "HTML"],
+        "skill_level": "Builder",
+        "maturity_score": 65,
+        "github_profile_level": "Intermediate",
+        "coding_skills_level": "Advanced",
+        "project_quality_level": "Intermediate",
+        "top_3_repos": ["project-alpha", "react-dashboard", "docker-api"],
+        "open_source_contributions": "Active contributor with 15+ merged PRs in external repositories.",
+        "technologies_used": ["VS Code", "Docker", "Python", "JavaScript", "HTML"],
         "strengths": ["Consistent project delivery", "REST API design with FastAPI"],
         "skill_gaps": ["Test coverage and TDD practices", "Database optimization and query design"],
         "mentor_match": "Senior Backend Engineer",
@@ -80,15 +136,28 @@ async def analyze_github(username: str = Query(..., min_length=1)):
     try:
         # A. Fetch GitHub repos
         headers = {'User-Agent': 'GitMentor-App'}
+        github_token = os.getenv("GITHUB_TOKEN")
+        if github_token:
+            headers['Authorization'] = f"token {github_token}"
+            
         repos_url = f"https://api.github.com/users/{username}/repos?sort=updated&per_page=10"
         res = requests.get(repos_url, headers=headers, timeout=5)
 
+        if res.status_code == 403 or res.status_code == 429:
+            return {"status": "error", "detail": "GitHub API Rate Limit exceeded. Please configure GITHUB_TOKEN in backend/.env"}
+            
         if res.status_code != 200:
             print(f"DEBUG: GitHub API failed for {username} — status {res.status_code}")
-            raise Exception("GitHub user not found")
-        repos = res.json()
+            return {"status": "error", "detail": f"GitHub user '{username}' not found or API error."}
+            
+        res_json = res.json()
+        if type(res_json) is dict and "message" in res_json:
+            repos = []
+        else:
+            repos = res_json
+
         if not repos:
-            return {"status": "success", "username": username, **mock_data}
+            return {"status": "error", "detail": f"User '{username}' has no public repositories to analyze."}
 
         # B. Gather rich context
         latest_repo = repos[0]['name']
@@ -98,40 +167,64 @@ async def analyze_github(username: str = Query(..., min_length=1)):
         total_repos = len(repos)
         stars = sum(r.get('stargazers_count', 0) for r in repos)
 
-        # C. Staff Engineer AI Audit — 5-Pillar Rubric
+        repo_summaries = []
+        for r in sorted(repos, key=lambda x: x.get('stargazers_count', 0), reverse=True)[:5]:
+            repo_summaries.append(f"{r.get('name')} (Stars: {r.get('stargazers_count', 0)}): {r.get('description', 'No description')}")
+
+        # C. Gather deep context
+        deep_context = fetch_deep_repo_context(username, latest_repo, headers)
+
+        # D. Staff Engineer AI Audit — Deep 5-Pillar Rubric
         if client:
             prompt = f"""
 You are a Staff Engineer performing a hiring assessment for '{username}'.
 
-Audit their portfolio using their top project '{latest_repo}' and README below.
+Audit their portfolio utilizing their Github Repo Context for '{latest_repo}'.
 
 README:
 {readme[:2000]}
 
+DEEP CONTEXT (FILE STRUCTURE, AST/DEPENDENCIES, COMMITS, PRs, ISSUES):
+- File Structure (AST Proxy): {deep_context['file_structure']}
+- Recent Commits: {deep_context['recent_commits']}
+- Recent PRs: {deep_context['recent_prs']} 
+- Recent Issues: {deep_context['recent_issues']}
+
 ADDITIONAL SIGNALS:
 - Topics/Tags: {', '.join(topics) if topics else 'None'}
 - Detected Languages: {', '.join(top_languages) if top_languages else 'Unknown'}
+- Repositories context: {repo_summaries}
 - Total Public Repos: {total_repos}
 - Total Stars: {stars}
 
-EVALUATE USING THIS 5-PILLAR TECHNICAL MATURITY RUBRIC:
-1. DevOps & Prod-Readiness: Does the repo mention Docker, CI/CD (GitHub Actions), or .env / .env.example files? A developer who uses these understands "it works on my machine" is not enough. This is a Senior signal.
-2. Documentation Quality: Does the README have setup instructions, architecture diagrams, API docs, or screenshots/GIFs? Documentation is the difference between a lone coder and a team player.
-3. Modular Architecture: Does the project mention microservices, API structure, or separation of concerns? Juniors write monolithic spaghetti; Mid/Seniors structure apps into logical, reusable modules.
-4. Security & Best Practices: Does it mention environment variables (no hardcoded keys), JWT auth, or robust error handling? Security-awareness is a high-maturity signal.
-5. Integration Complexity: Are they building a simple ToDo list, or integrating with real APIs, databases, and external services (e.g., Stripe, OpenAI, PostgreSQL)? Complex integrations show a developer who solves real business problems.
-
-Based on this rubric, determine their overall maturity.
+EVALUATE USING THESE 5 METRICS (SCORE 0-100 EACH). DO NOT HALLUCINATE OR GUESS. Use strictly the provided JSON structure.
+If there are no open source contributions, say "No significant open source contributions detected." 
+If you see Dockerfiles or .vscode folders in the file structure, list them under technologies_used.
+1. Code Quality (0.25 weight): Error handling, readability, module imports.
+2. Architecture & File Structure (0.20 weight): Project layout, microservices, logical boundaries.
+3. Engineering Practices (0.20 weight): CI/CD configs, Dockerfiles, branching patterns via commits, PR descriptions.
+4. Project Depth (0.20 weight): Complexity of external dependencies seen in file structure, integration logic.
+5. Problem Solving (0.15 weight): Evidenced by issue tracking, PR resolutions, commit topics.
 
 RETURN ONLY VALID JSON:
 {{
-    "skill_level": "Beginner or Intermediate or Advanced",
-    "maturity_score": <integer 1-10>,
-    "top_languages": [<list of 3-5 detected tech stack items>],
-    "strengths": [<exactly 2 of the 5 pillars they clearly excel at, phrased as a specific observation>],
-    "skill_gaps": [<exactly 2 of the 5 pillars they are missing or weak in, phrased as actionable advice>],
-    "mentor_match": "<ideal senior mentor job title (e.g., Senior Systems Architect)>",
-    "insights": "<2-sentence professional audit focusing on code structure and maturity growth path>"
+    "github_profile_level": "<Beginner, Intermediate, Advanced, or Professional>",
+    "coding_skills_level": "<Beginner, Intermediate, Advanced, or Professional>",
+    "project_quality_level": "<Beginner, Intermediate, Advanced, or Professional>",
+    "top_3_repos": ["<repo1>", "<repo2>", "<repo3>"],
+    "open_source_contributions": "<Summary of open source contributions and impact>",
+    "technologies_used": ["<Search strictly for all tools used, including VS/VS Code, Docker, Frameworks>"],
+    "subscores": {{
+        "code_quality": <0-100>,
+        "architecture": <0-100>,
+        "engineering_practices": <0-100>,
+        "project_depth": <0-100>,
+        "problem_solving": <0-100>
+    }},
+    "strengths": [<exactly 2 strengths based on file structure and deeper analysis>],
+    "skill_gaps": [<exactly 2 gaps based on deeper analysis>],
+    "mentor_match": "<ideal senior mentor job title>",
+    "insights": "<2-sentence audit focusing on code structure, architecture, and maturity>"
 }}
 """
             completion = client.chat.completions.create(
@@ -140,30 +233,63 @@ RETURN ONLY VALID JSON:
                 response_format={"type": "json_object"}
             )
             analysis = json.loads(completion.choices[0].message.content)
+            
+            sub = analysis.get('subscores', {})
+            score = (
+                0.25 * sub.get('code_quality', 50) +
+                0.20 * sub.get('architecture', 50) +
+                0.20 * sub.get('engineering_practices', 50) +
+                0.20 * sub.get('project_depth', 50) +
+                0.15 * sub.get('problem_solving', 50)
+            )
+            score = round(score)
+            
+            if score <= 30:
+                skill_level = "Beginner"
+            elif score <= 50:
+                skill_level = "Learner"
+            elif score <= 70:
+                skill_level = "Builder"
+            elif score <= 85:
+                skill_level = "Engineer"
+            else:
+                skill_level = "Advanced Engineer"
+                
+            if 'subscores' in analysis:
+                del analysis['subscores']
+
+            # Query the database for a matching mentor
+            job_title = analysis.get('mentor_match', '')
+            user_tools = analysis.get('technologies_used', [])
+            matched_mentors = mentor_db.find_best_mentors(job_title, user_tools, limit=1)
+            
+            if matched_mentors:
+                analysis['matched_mentor'] = matched_mentors[0]
+            else:
+                analysis['matched_mentor'] = None
+
             return {
                 "status": "success",
                 "username": username,
                 "avatar_url": f"https://github.com/{username}.png",
                 "total_repos": total_repos,
                 "stars": stars,
+                "maturity_score": score,
+                "skill_level": skill_level,
                 **analysis
             }
 
         # No AI client fallback
         return {
-            "status": "success",
-            "username": username,
-            "avatar_url": f"https://github.com/{username}.png",
-            "total_repos": total_repos,
-            "stars": stars,
-            **mock_data
+            "status": "error",
+            "detail": "GROQ_API_KEY not configured. Cannot perform AI Audit."
         }
 
     except Exception as e:
         print(f"DEBUG ERROR: {e}")
         import traceback
         traceback.print_exc()
-        return {"status": "success", "username": username, "avatar_url": f"https://github.com/{username}.png", **mock_data}
+        return {"status": "error", "detail": f"Analysis failed: {str(e)}"}
 
 @app.get("/api/status")
 def get_status():
