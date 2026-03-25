@@ -39,19 +39,19 @@ async function analyzeProfile() {
 
         resultDiv.style.opacity = '1';
         const score = data.maturity_score || 0;
-        const pct   = (score / 10) * 100;  // score is 0-10, bar is 0-100%
-        const col   = score >= 7 ? '#4ade80' : score >= 4 ? '#fbbf24' : '#f87171';
+        const pct = (score / 10) * 100;  // score is 0-10, bar is 0-100%
+        const col = score >= 7 ? '#4ade80' : score >= 4 ? '#fbbf24' : '#f87171';
 
-            const strengthsHTML = (data.strengths || []).map(s =>
-                `<li><span class="check-icon">✓</span>${s}</li>`).join('');
-            const gapsHTML = (data.skill_gaps || []).map(g =>
-                `<li><span class="gap-icon">▲</span>${g}</li>`).join('');
-            const toolsHTML = (data.technologies_used || []).map(l =>
-                `<span class="lang-pill">${l}</span>`).join('');
-            const reposHTML = (data.top_3_repos || []).map(r =>
-                `<div class="stat-chip" style="margin-right: 8px;">📁 ${r}</div>`).join('');
+        const strengthsHTML = (data.strengths || []).map(s =>
+            `<li><span class="check-icon">✓</span>${s}</li>`).join('');
+        const gapsHTML = (data.skill_gaps || []).map(g =>
+            `<li><span class="gap-icon">▲</span>${g}</li>`).join('');
+        const toolsHTML = (data.technologies_used || []).map(l =>
+            `<span class="lang-pill">${l}</span>`).join('');
+        const reposHTML = (data.top_3_repos || []).map(r =>
+            `<div class="stat-chip" style="margin-right: 8px;">📁 ${r}</div>`).join('');
 
-            resultDiv.innerHTML = `
+        resultDiv.innerHTML = `
                 <div class="result-card fade-in">
                     <div class="result-header">
                         <img src="${data.avatar_url}" class="avatar" alt="${data.username}"
@@ -132,30 +132,26 @@ async function analyzeProfile() {
                     </div>`}
                 </div>`;
 
-            // Animate bar after render
-            requestAnimationFrame(() => {
-                setTimeout(() => {
-                    const fill = document.getElementById('maturity-fill');
-                    if (fill) fill.style.width = pct + '%';
-                }, 100);
-            });
+        // Animate bar after render
+        requestAnimationFrame(() => {
+            setTimeout(() => {
+                const fill = document.getElementById('maturity-fill');
+                if (fill) fill.style.width = pct + '%';
+            }, 100);
+        });
 
-            document.getElementById('result-display').scrollIntoView({ behavior: 'smooth', block: 'start' });
-        } else {
-            resultDiv.style.opacity = '1';
-            resultDiv.innerHTML = `<div class="result-card fade-in" style="border-color: #f87171;"><p style="color:#f87171; font-weight:600;">⚠️ ${data.detail || 'Analysis failed. Please check the username and try again.'}</p></div>`;
-        }
+        document.getElementById('result-display').scrollIntoView({ behavior: 'smooth', block: 'start' });
     } catch (err) {
-        console.error("Fetch error:", err);
-        alert("Could not reach the server. Ensure the backend is running.");
-    } finally {
-        button.disabled = false;
-        button.innerHTML = `
+    console.error("Fetch error:", err);
+    alert("Could not reach the server. Ensure the backend is running.");
+} finally {
+    button.disabled = false;
+    button.innerHTML = `
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="sparkles">
                 <path d="M12 3l1.912 5.813a2 2 0 001.275 1.275L21 12l-5.813 1.912a2 2 0 00-1.275 1.275L12 21l-1.912-5.813a2 2 0 00-1.275-1.275L3 12l5.813-1.912a2 2 0 001.275-1.275L12 3z"></path>
             </svg>
             Analyze Profile`;
-    }
+}
 }
 
 // Enter key support
@@ -187,11 +183,11 @@ window.addEventListener('load', () => {
                     fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
                         headers: { Authorization: `Bearer ${tokenResponse.access_token}` }
                     })
-                    .then(res => res.json())
-                    .then(user => {
-                        updateSignInUI(user.given_name, user.picture);
-                    })
-                    .catch(err => console.error("Error fetching user info:", err));
+                        .then(res => res.json())
+                        .then(user => {
+                            updateSignInUI(user.given_name, user.picture);
+                        })
+                        .catch(err => console.error("Error fetching user info:", err));
                 }
             }
         });

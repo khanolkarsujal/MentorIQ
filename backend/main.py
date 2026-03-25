@@ -62,7 +62,7 @@ def fetch_languages(username, repos, headers):
                     lang_count[lang] = lang_count.get(lang, 0) + bytes_count
         except:
             continue
-    return sorted(lang_count, key=lang_count.get, reverse=True)[:6]
+    return sorted(lang_count, key=lambda x: lang_count[x], reverse=True)[:6]
 
 # Helper: Deep Repo Context
 def fetch_deep_repo_context(username, repo_name, headers):
@@ -235,7 +235,7 @@ RETURN ONLY VALID JSON:
                 0.15 * sub.get('problem_solving', 50)
             )
             # score_raw is 0-100; convert to 0-10 scale for display
-            score = round(score_raw / 10, 1)
+            score = round(score_raw / 10.0, 1)
             
             if score <= 3.0:
                 skill_level = "Beginner"

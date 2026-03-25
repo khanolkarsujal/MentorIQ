@@ -518,7 +518,6 @@ code { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.85em; backgr
 }
 
 /* Maturity Bar */
-.maturity-section {}
 .maturity-label { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
 .maturity-label span { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--dim); }
 .maturity-label strong { font-size: 1.5rem; font-weight: 900; letter-spacing: -0.03em; }
