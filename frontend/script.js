@@ -24,11 +24,23 @@ async function analyzeProfile() {
         const res = await fetch(`/api/analyze?username=${encodeURIComponent(username)}`);
         const data = await res.json();
 
-        if (res.ok) {
+        if (!res.ok && res.status !== 200) {
             resultDiv.style.opacity = '1';
-            const score = data.maturity_score || 0;
-            const pct   = (score / 100) * 100;
-            const col   = score >= 70 ? '#4ade80' : score >= 40 ? '#fbbf24' : '#f87171';
+            resultDiv.innerHTML = `<div class="result-card fade-in" style="border-color: #f87171;"><p style="color:#f87171;">⚠️ Server error (${res.status}). Please try again.</p></div>`;
+            return;
+        }
+
+        // Backend returns status field even on 200 for logical errors
+        if (data.status === 'error') {
+            resultDiv.style.opacity = '1';
+            resultDiv.innerHTML = `<div class="result-card fade-in" style="border-color: #fbbf24;"><p style="color:#fbbf24; font-weight:600;">⚠️ ${data.detail || 'Analysis failed. Please try again.'}</p></div>`;
+            return;
+        }
+
+        resultDiv.style.opacity = '1';
+        const score = data.maturity_score || 0;
+        const pct   = (score / 10) * 100;  // score is 0-10, bar is 0-100%
+        const col   = score >= 7 ? '#4ade80' : score >= 4 ? '#fbbf24' : '#f87171';
 
             const strengthsHTML = (data.strengths || []).map(s =>
                 `<li><span class="check-icon">✓</span>${s}</li>`).join('');
@@ -82,6 +94,7 @@ async function analyzeProfile() {
                     <div class="insight-box">
                         <p class="section-label">AI Audit</p>
                         <p>${data.insights}</p>
+                    </div>
 
                     <div class="insight-box" style="border-left-color: #fbbf24; margin-top: 16px;">
                         <p class="section-label" style="color: #fbbf24;">How Active is ${data.username}?</p>
@@ -129,7 +142,8 @@ async function analyzeProfile() {
 
             document.getElementById('result-display').scrollIntoView({ behavior: 'smooth', block: 'start' });
         } else {
-            alert(data.detail || "Analysis failed. Please try again.");
+            resultDiv.style.opacity = '1';
+            resultDiv.innerHTML = `<div class="result-card fade-in" style="border-color: #f87171;"><p style="color:#f87171; font-weight:600;">⚠️ ${data.detail || 'Analysis failed. Please check the username and try again.'}</p></div>`;
         }
     } catch (err) {
         console.error("Fetch error:", err);

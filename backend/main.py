@@ -4,7 +4,8 @@ import requests
 from pathlib import Path
 from dotenv import load_dotenv
 from openai import OpenAI
-from fastapi import FastAPI, Query
+import re
+from fastapi import FastAPI, Query, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
@@ -117,21 +118,12 @@ async def serve_home():
 
 @app.get("/api/analyze")
 async def analyze_github(username: str = Query(..., min_length=1)):
-    # RICH MOCK FALLBACK DATA
-    mock_data = {
-        "skill_level": "Builder",
-        "maturity_score": 65,
-        "github_profile_level": "Intermediate",
-        "coding_skills_level": "Advanced",
-        "project_quality_level": "Intermediate",
-        "top_3_repos": ["project-alpha", "react-dashboard", "docker-api"],
-        "open_source_contributions": "Active contributor with 15+ merged PRs in external repositories.",
-        "technologies_used": ["VS Code", "Docker", "Python", "JavaScript", "HTML"],
-        "strengths": ["Consistent project delivery", "REST API design with FastAPI"],
-        "skill_gaps": ["Test coverage and TDD practices", "Database optimization and query design"],
-        "mentor_match": "Senior Backend Engineer",
-        "insights": "Shows strong foundational skills in Python web development. To reach a senior level, focus on building production-grade systems with robust testing and observability."
-    }
+    # Sanitize username: only allow alphanumeric, hyphen, and dot (valid GitHub chars)
+    username = re.sub(r'[^a-zA-Z0-9\-.]', '', username)
+    if not username:
+        raise HTTPException(status_code=400, detail="Invalid username. Only alphanumeric characters, hyphens and dots are allowed.")
+    if len(username) > 39:  # GitHub max username length
+        raise HTTPException(status_code=400, detail="Username too long. Max 39 characters.")
 
     try:
         # A. Fetch GitHub repos
@@ -235,25 +227,24 @@ RETURN ONLY VALID JSON:
             analysis = json.loads(completion.choices[0].message.content)
             
             sub = analysis.get('subscores', {})
-            score = (
+            score_raw = (
                 0.25 * sub.get('code_quality', 50) +
                 0.20 * sub.get('architecture', 50) +
                 0.20 * sub.get('engineering_practices', 50) +
                 0.20 * sub.get('project_depth', 50) +
                 0.15 * sub.get('problem_solving', 50)
             )
-            score = round(score)
+            # score_raw is 0-100; convert to 0-10 scale for display
+            score = round(score_raw / 10, 1)
             
-            if score <= 30:
+            if score <= 3.0:
                 skill_level = "Beginner"
-            elif score <= 50:
-                skill_level = "Learner"
-            elif score <= 70:
-                skill_level = "Builder"
-            elif score <= 85:
-                skill_level = "Engineer"
+            elif score <= 5.0:
+                skill_level = "Intermediate"
+            elif score <= 7.0:
+                skill_level = "Advanced"
             else:
-                skill_level = "Advanced Engineer"
+                skill_level = "Professional"
                 
             if 'subscores' in analysis:
                 del analysis['subscores']
