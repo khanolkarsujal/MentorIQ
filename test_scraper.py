@@ -1,5 +1,5 @@
-import requests
-from bs4 import BeautifulSoup
+import requests # type: ignore
+from bs4 import BeautifulSoup # type: ignore
 
 def get_contributions(username):
     try:
@@ -17,3 +17,4 @@ def get_contributions(username):
         return str(e)
 
 print(get_contributions('torvalds'))
+ 

@@ -1,6 +1,8 @@
 import sqlite3
 import json
 import os
+from typing import List, Dict, Any
+import itertools # type: ignore
 
 DB_PATH = os.path.join(os.path.dirname(__file__), "mentors.db")
 
@@ -48,7 +50,7 @@ def seed_mentors(cursor):
             (m[0], m[1], m[2], m[3], json.dumps(m[4]))
         )
         
-def find_best_mentors(title_query, user_tech_stack, limit=2):
+def find_best_mentors(title_query: str, user_tech_stack: List[str], limit: int = 2) -> List[Dict[str, Any]]:
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
@@ -61,33 +63,38 @@ def find_best_mentors(title_query, user_tech_stack, limit=2):
     if not all_mentors:
         return []
         
-    scored_mentors = []
+    scored_mentors: List[Dict[str, Any]] = []
     
     title_query_lower = title_query.lower()
     user_tech_lower = [t.lower() for t in user_tech_stack]
     
     for row in all_mentors:
-        mentor = dict(row)
-        mentor["tech_stack"] = json.loads(mentor["tech_stack"])
+        mentor: Dict[str, Any] = dict(row)
+        tech_raw = json.loads(str(mentor.get("tech_stack", "[]")))
+        mentor["tech_stack"] = tech_raw if isinstance(tech_raw, list) else []
         
         score = 0
-        mentor_title_lower = mentor["title"].lower()
+        # 1. Match title
+        mentor_title_lower = str(mentor.get("title", "")).lower()
         
         # 1. Match title (e.g., if LLM recommends "Backend Engineer" and mentor is "Senior Backend Engineer")
         if title_query_lower in mentor_title_lower or mentor_title_lower in title_query_lower:
             score += 50
         
         # 2. Match tech stack
-        mentor_tech_lower = [t.lower() for t in mentor["tech_stack"]]
+        mentor_tech_list: List[str] = mentor["tech_stack"]
+        mentor_tech_lower = [str(t).lower() for t in mentor_tech_list]
         overlap = set(user_tech_lower).intersection(set(mentor_tech_lower))
         score += len(overlap) * 10 
         
-        mentor["score"] = score
+        mentor["score"] = int(score)
         scored_mentors.append(mentor)
         
     # Sort by descending score
-    scored_mentors.sort(key=lambda x: x["score"], reverse=True)
-    return scored_mentors[:limit]
+    scored_mentors.sort(key=lambda x: int(x.get("score", 0)), reverse=True)
+    # Use islice to fix slice warning
+    results = list(itertools.islice(scored_mentors, limit))
+    return results
 
 if __name__ == "__main__":
     init_db()
