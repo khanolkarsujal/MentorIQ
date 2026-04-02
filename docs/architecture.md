@@ -1,83 +1,39 @@
-# MentorIQ — System Architecture
+# 🏛️ MentorIQ Architecture Overview
 
-## Overview
+MentorIQ is built using a **SaaS-inspired modular architecture** to ensure scalability, ease of testing, and isolation of business logic.
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                         CLIENT BROWSER                          │
-│         HTML + CSS + JS (Vanilla, no framework required)        │
-└──────────────────────────────┬──────────────────────────────────┘
-                               │ HTTP GET /api/analyze?username=…
-                               ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                     NGINX (Reverse Proxy)                       │
-│                  Port 80 → Port 8000 (internal)                 │
-└──────────────────────────────┬──────────────────────────────────┘
-                               │
-                               ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                  FastAPI Backend  (backend/main.py)             │
-│                                                                 │
-│  ┌──────────────────┐    ┌──────────────────────────────────┐  │
-│  │  GitHub API Call │    │  5-Pillar Prompt Builder         │  │
-│  │                  │    │  • DevOps / CI-CD signals        │  │
-│  │  /users/{u}/repos│    │  • Documentation quality         │  │
-│  │  Top 5 langs     │    │  • Modular architecture          │  │
-│  │  README fetch    │    │  • Security best practices       │  │
-│  │  Stars, topics   │    │  • Integration complexity        │  │
-│  └────────┬─────────┘    └──────────────┬───────────────────┘  │
-│           └──────────────────┬──────────┘                       │
-│                              ▼                                   │
-│              ┌───────────────────────────┐                      │
-│              │  Groq API (Llama-3.3-70b) │                      │
-│              │  JSON-mode enforced output │                      │
-│              └───────────────────────────┘                      │
-│                              │                                   │
-│           Returns: skill_level, maturity_score, top_languages,  │
-│                   strengths, skill_gaps, mentor_match, insights  │
-└─────────────────────────────────────────────────────────────────┘
-```
+---
 
-## Key Technical Decisions
+### **1. 🛤️ Request Flow**
+1.  **Client (Frontend)**: Sends a `GET /api/analyze?username=...` request.
+2.  **API Layer (`audit_api.py`)**: Sanitizes input and initiates data fetching.
+3.  **Data Fetcher (`github_service.py`)**: 
+    - Attempts to pull profile data via REST API.
+    - If rate-limited (403/429), it automatically triggers a **BeautifulSoup4-based scraper** fallback to maintain high availability.
+    - Fetches the `README.md` and repo file structure for deep context.
+4.  **AI Engine (`audit_service.py`)**:
+    - Constructs a highly structured prompt (Principcal Engineer Audit).
+    - Uses **Llama-3.3-70b (via GROQ)** for deterministic JSON output.
+    - Evaluates five key metrics: Code Quality, Architecture, Engineering Practices, Project Depth, and Problem Solving.
+5.  **Database Layer (`database.py`)**:
+    - Executes a **Weighted Matching Algorithm** between the AI-derived career path and the 25+ industry experts in the SQLite database.
+6.  **Response**: Returns a complete audit report with real-time mentor recommendations.
 
-| Decision | Rationale |
-|---|---|
-| **FastAPI** over Flask | Async support, native Pydantic validation, auto-generated OpenAPI docs |
-| **Groq / Llama-3.3-70b** | Sub-second inference — critical for demo; outperforms GPT-3.5 in structured JSON output |
-| **JSON-mode** on LLM call | Guarantees parseable output — eliminates brittle regex parsing |
-| **`response_format=json_object`** | Forces schema compliance without post-processing |
-| **Multi-repo language fetch** | Aggregates across top 5 repos for accurate stack fingerprint |
-| **Mock fallback data** | Graceful degradation if GitHub API or Groq is unavailable |
+---
 
-## Technical Challenges Faced & Solutions
+### **2. 🗄️ Persistence Layer**
+- **SQLite3**: Used to store professional mentor profiles.
+- **Dynamic Seeding**: The system automatically initializes and seeds the database with realistic industry mentors (Google, Meta, Uber, etc.) if it's missing or empty.
 
-### 1. LLM Model Decommission
-**Problem:** The initial `llama3-8b-8192` model was decommissioned by Groq mid-development, causing all analysis calls to silently fail and return mock data.  
-**Solution:** Upgraded to `llama-3.3-70b-versatile`, added `traceback.print_exc()` logging, and confirmed live responses with `curl`.
+---
 
-### 2. AI Hallucination on Generic Profiles  
-**Problem:** With little context (empty README), the LLM returned generic "Python developer" responses.  
-**Solution:** Added 5 contextual signals to the prompt: language distribution across 5 repos, star count, GitHub Topics, repo count, and README content. Richer context = less hallucination.
+### **3. 🛡️ Fault Tolerance**
+- **Graceful Fallback**: If `GROQ_API_KEY` is missing, the service provides an actionable error message (`detail`) instead of a 500 crash.
+- **GitHub API Failover**: The application handles rate-limiting gracefully by switching to raw HTML scraping for essential profile info.
 
-### 3. Secret Accidentally Committed to Git  
-**Problem:** `.env` file was committed before `.gitignore` was configured, causing GitHub to block the push.  
-**Solution:** Used `git-filter-repo` to permanently purge the file from all commit history, then force-pushed. Rotated the API key immediately.
+---
 
-### 4. Result Container Missing (UI Hang)  
-**Problem:** `script.js` referenced `#result-display` which didn't exist in the initial HTML, causing the "Analyzing..." spinner to hang forever.  
-**Solution:** Added `<div id="result-display"></div>` to the HTML. Now also validated with `document.getElementById` null-checks.
-
-## Security Considerations
-
-- All secrets managed via `.env` / environment variables — never hardcoded
-- `.env` excluded from git via `.gitignore` 
-- CORS configured to restrict origins in production
-- Input validated server-side via FastAPI `Query(min_length=1)`
-- Rate limiting ready via `slowapi` (see `requirements.txt`)
-
-## Running Tests
-
-```bash
-pip install pytest httpx
-pytest tests/ -v
-```
+### **4. 🎨 Design Principles**
+- **Single Responsibility**: Scrapers, AI logic, and API routes are strictly separated.
+- **Configuration over Hardcoding**: Unified `.env` management via Pydantic Settings throughout the app.
+- **Premium UX**: Responsive, glassmorphism-based frontend with real-time loading feedback.
