@@ -52,7 +52,7 @@ GITHUB_TOKEN=optional_but_recommended
 cd backend
 python -m app.main
 ```
-The application will be live at [http://localhost:8000](http://localhost:8000).
+The application will be live at [[http://localhost:8000](http://localhost:8000).] (https://mentoriq.onrender.com/)
 
 ---
 
