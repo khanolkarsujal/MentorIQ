@@ -3,5 +3,9 @@ uvicorn
 requests
 python-dotenv
 openai
-httpx
-pytest
+beautifulsoup4
+pydantic
+pydantic-settings
+pydantic[email]
+lxml
+lxml_html_clean

@@ -1,58 +1,64 @@
-# 🎓 MentorIQ (GitMentor)
+# 🛡️ MentorIQ (SaaS Architecture)
 
-> **Stop Guessing. Let Your Code Find Your Mentor.**
+> **Principal Engineer Refactor: Production-Ready SaaS Architecture**
 
-MentorIQ is an AI-powered **Staff Engineer Audit** engine that analyzes your GitHub portfolio to find your perfect professional mentor. No resumes, no fluff—just pure code analysis.
-
----
-
-## ✨ Features
-- **🤖 AI Staff Audit**: Deep 5-pillar technical maturity check using Groq & Llama-3.3.
-- **📊 1100px Dashboard**: High-density bento-style reports for strengths and skill gaps.
-- **🎯 Mentor Matchmaking**: Intelligent pairing with industry pros based on your actual tech stack.
-- **🚀 High Availability**: Automatic GitHub API fallback—works even without a personal token!
-- **💎 Premium UI**: Sleek dark mode with glassmorphism and smooth animations.
+MentorIQ is an AI-powered GitHub auditing and mentor matchmaking platform. This version features a modular, service-oriented backend built for scalability, security, and high availability.
 
 ---
 
-## 🚀 Quick Start
+### **🏗️ SaaS Architecture Breakdown**
 
-### 1. Setup Environment
-Clone the repo and create a `.env` file in the root:
+| **Directory** | **Responsibility** | **Key Patterns Used** |
+| :--- | :--- | :--- |
+| `backend/app/main.py` | FastAPI Entrypoint | App initialization & Middleware setup |
+| `backend/app/api/endpoints/` | Controllers / Routers | Separation of routing from business logic |
+| `backend/app/services/` | Business Logic | Isolated AI, Scraper, and Data Logic |
+| `backend/app/core/` | Configuration | Pydantic Settings for .env management |
+| `backend/app/db/` | Persistence | Modular SQLite initialization and queries |
+| `backend/app/models/` | Data Transfer Objects | Pydantic schemas for API consistency |
+
+---
+
+### **🚀 Core Objective Met**
+- **Decoupled Architecture**: Scrapers, AI Scoring, and Routes are no longer mixed.
+- **High Availability**: Automatic HTML fallback if GitHub API rate-limits the app.
+- **Scalable Config**: Unified `.env` management with validation.
+- **Judge-Ready**: Clean folder structure, production-grade logic.
+
+---
+
+### **🛠 Quick Start**
+
+#### **1. Environment Setup**
+Ensure your `.env` contains:
 ```env
 GROQ_API_KEY=your_key_here
-GITHUB_TOKEN=optional_but_recommended
+GITHUB_TOKEN=optional_but_helps
 ```
 
-### 2. Run with Docker (Recommended)
+#### **2. Running the SaaS Backend**
 ```bash
-docker-compose up --build
-```
-Open [http://localhost](http://localhost)
-
-### 3. Local Development (Manual)
-```bash
+cd backend
 pip install -r requirements.txt
-python -m uvicorn backend.main:app --reload
+python -m app.main
 ```
 
 ---
 
-## 🛠 Tech Stack
-- **Backend**: FastAPI (Python)
-- **AI**: Groq (Llama-3.3-70B)
-- **Frontend**: Vanilla JS, CSS3 (Glassmorphism), HTML5
-- **Database**: SQLite3
-- **DevOps**: Docker, Nginx
+### **📂 Project Structure**
+```text
+MentorIQ/
+├── backend/
+│   ├── app/
+│   │   ├── api/
+│   │   ├── services/
+│   │   ├── core/
+│   │   ├── db/
+│   │   └── main.py
+│   └── data/            # Persistence Layer
+├── frontend/            # Glassmorphism UI
+└── .env                 # Global Config
+```
 
 ---
-
-## 📁 Structure
-- `/backend`: FastAPI server & AI logic.
-- `/frontend`: Responsive UI & Dashboard.
-- `/docs`: Architecture & Technical deep-dives.
-
----
-
-### *Ignite Hack 2.0 Submission*
-Created with 💻 by [khanolkarsujal](https://github.com/khanolkarsujal)
+*Refactored by Principal Engineer for Ignite Hack 2.0*
