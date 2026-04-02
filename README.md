@@ -2,7 +2,10 @@
 
 **AI-Powered GitHub Auditing & Mentor Matchmaking Platform**
 
+![MentorIQ Dashboard](frontend/images/screenshot.png)
+
 MentorIQ is a production-ready SaaS application that audits GitHub profiles using AI to assess code maturity, engineering practices, and technical depth. It then intelligently matches developers with high-level industry mentors (from companies like Meta, Google, OpenAI, etc.) based on their specific skill gaps and tech stack.
+
 
 ---
 
@@ -61,4 +64,4 @@ The application will be live at [http://localhost:8000](http://localhost:8000).
 - **Frontend**: Vanilla HTML5, CSS3, JavaScript (ES6+)
 
 ---
-*Developed for Ignite Hack 2.0*
+*Developed by Khanolkar Sujal*
